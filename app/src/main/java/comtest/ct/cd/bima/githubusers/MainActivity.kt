@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import comtest.ct.cd.bima.githubusers.domain.AppSettings
 import comtest.ct.cd.bima.githubusers.domain.SortType
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -21,17 +23,30 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
 
     private var searchJob: Job? = null
 
-    private val viewModel: UserListViewModel by inject()
+    private val viewModel by inject<UserListViewModel>()
+
+    private val appSettings by inject<AppSettings>()
 
     private val resultAdapter = SearchResultAdapter()
+
+    var isLoadingMore = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         job = Job()
 
+        val manager = GridLayoutManager(this, 2).apply {
+            spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int =
+                    when (resultAdapter.getItemViewType(position)) {
+                        SearchResultAdapter.TYPE_FOOTER -> 2
+                        else -> 1
+                    }
+            }
+        }
         with(resultListView) {
-            layoutManager = GridLayoutManager(this@MainActivity, 2)
+            layoutManager = manager
             adapter = resultAdapter
         }
 
@@ -52,15 +67,34 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
             resultAdapter.result = it
         }
 
+        resultListView.addOnScrollListener(
+            object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (resultAdapter.result.size < appSettings.rowPerPage) return
+                    val lastIndex = manager.findLastVisibleItemPosition()
+                    if (!isLoadingMore && lastIndex >= resultAdapter.result.size - 1) {
+                        viewModel.nextPage()
+                    }
+                }
+            }
+        )
+
         viewModel.uiState.observe(this) {
             when (it) {
-                is UserListState.LOADING -> {
+                is UserListState.Loading -> {
                     loadingView.isVisible = true
                     resultListView.isVisible = false
                 }
-                is UserListState.READY, is UserListState.ERROR -> {
+                is UserListState.LoadNext -> {
+                    isLoadingMore = true
+                    resultAdapter.isLoadingNext = true
+                }
+                is UserListState.Ready, is UserListState.Error -> {
                     loadingView.isVisible = false
                     resultListView.isVisible = true
+                    resultAdapter.isLoadingNext = false
+                    isLoadingMore = false
                 }
             }
         }

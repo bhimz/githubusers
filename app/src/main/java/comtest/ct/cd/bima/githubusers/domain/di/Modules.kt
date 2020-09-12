@@ -2,6 +2,7 @@ package comtest.ct.cd.bima.githubusers.domain.di
 
 import com.google.gson.GsonBuilder
 import comtest.ct.cd.bima.githubusers.UserListViewModel
+import comtest.ct.cd.bima.githubusers.domain.AppSettings
 import comtest.ct.cd.bima.githubusers.domain.repository.UserRepository
 import comtest.ct.cd.bima.githubusers.domain.repository.remote.RestUserRepository
 import comtest.ct.cd.bima.githubusers.domain.repository.remote.source.ApiService
@@ -18,7 +19,8 @@ val appModule = module {
             .addConverterFactory(GsonConverterFactory.create(get()))
             .build().create(ApiService::class.java)
     }
+    single { AppSettings(rowPerPage = 50) }
     factory<UserRepository> { RestUserRepository(get()) }
     factory { SearchUsers(get()) }
-    viewModel { UserListViewModel(get()) }
+    viewModel { UserListViewModel(get(), get()) }
 }

@@ -1,6 +1,7 @@
 package comtest.ct.cd.bima.githubusers
 
 import androidx.lifecycle.*
+import comtest.ct.cd.bima.githubusers.domain.AppSettings
 import comtest.ct.cd.bima.githubusers.domain.SortType
 import comtest.ct.cd.bima.githubusers.domain.User
 import comtest.ct.cd.bima.githubusers.domain.usecase.SearchUsers
@@ -9,7 +10,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class UserListViewModel(
+    private val appSettings: AppSettings,
     private val searchUsers: SearchUsers
+
 ) : ViewModel() {
 
     private var query = ""
@@ -20,30 +23,36 @@ class UserListViewModel(
 
     val uiState = MutableLiveData<UserListState>()
 
+    private val userList = mutableListOf<User>()
+
     val users = Transformations.switchMap(searchParams) {
         val (query, page, order) = it
         search(query, page, order)
     }
 
     private fun search(query: String, page: Int, order: SortType): LiveData<List<User>> {
+        if (page == 1 || query.isEmpty()) userList.clear()
         val target = MutableLiveData<List<User>>()
-        if (page > 1) {
-            target.value = users.value
-        }
         if (query.isEmpty()) {
-            target.value = listOf()
-            uiState.value = UserListState.READY
-        } else {
-            viewModelScope.launch {
-                searchUsers.invoke(SearchUsers.Params(query, page, sortType = order))
-                    .catch {
-                        uiState.value = UserListState.ERROR(it)
-                    }
-                    .collect {
-                        target.value = it
-                        uiState.value = UserListState.READY
-                    }
-            }
+            target.value = userList
+            uiState.value = UserListState.Ready
+        } else viewModelScope.launch {
+            searchUsers.invoke(
+                SearchUsers.Params(
+                    query,
+                    page,
+                    rowCount = appSettings.rowPerPage,
+                    sortType = order
+                )
+            )
+                .catch {
+                    uiState.value = UserListState.Error(it)
+                }
+                .collect {
+                    userList += it
+                    target.value = userList
+                    uiState.value = UserListState.Ready
+                }
         }
         return target
     }
@@ -53,7 +62,7 @@ class UserListViewModel(
         this.page = page
         this.order = order
         viewModelScope.launch {
-            uiState.value = UserListState.LOADING
+            uiState.value = UserListState.Loading
             searchParams.value = Triple(query, page, order)
         }
     }
@@ -65,15 +74,17 @@ class UserListViewModel(
     }
 
     fun nextPage() = viewModelScope.launch {
-        if (uiState.value == UserListState.LOADING) return@launch
+        if (uiState.value != UserListState.Ready) return@launch
         page++
-        updateSearch(query, order, page)
+        uiState.value = UserListState.LoadNext
+        searchParams.value = Triple(query, page, order)
     }
 
 }
 
 sealed class UserListState {
-    object LOADING : UserListState()
-    object READY : UserListState()
-    class ERROR(val error: Throwable) : UserListState()
+    object Loading : UserListState()
+    object LoadNext : UserListState()
+    object Ready : UserListState()
+    class Error(val error: Throwable) : UserListState()
 }

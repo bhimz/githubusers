@@ -6,3 +6,7 @@ enum class SortType(val value: String) {
     ASC("asc"),
     DESC("desc")
 }
+
+data class AppSettings(
+    val rowPerPage: Int
+)
