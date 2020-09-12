@@ -1,4 +1,4 @@
-package comtest.ct.cd.bima.githubusers.common.repository.remote
+package comtest.ct.cd.bima.githubusers.domain.repository.remote
 
 import com.google.gson.annotations.SerializedName
 

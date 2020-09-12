@@ -1,7 +1,7 @@
-package comtest.ct.cd.bima.githubusers.common.repository.remote.source
+package comtest.ct.cd.bima.githubusers.domain.repository.remote.source
 
-import comtest.ct.cd.bima.githubusers.common.repository.remote.Result
-import comtest.ct.cd.bima.githubusers.common.repository.remote.UserItem
+import comtest.ct.cd.bima.githubusers.domain.repository.remote.Result
+import comtest.ct.cd.bima.githubusers.domain.repository.remote.UserItem
 import retrofit2.http.GET
 import retrofit2.http.Query
 

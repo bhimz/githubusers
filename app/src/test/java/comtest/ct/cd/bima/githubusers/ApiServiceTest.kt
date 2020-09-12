@@ -1,9 +1,9 @@
 package comtest.ct.cd.bima.githubusers
 
 import com.google.gson.GsonBuilder
-import comtest.ct.cd.bima.githubusers.common.repository.remote.Result
-import comtest.ct.cd.bima.githubusers.common.repository.remote.UserItem
-import comtest.ct.cd.bima.githubusers.common.repository.remote.source.ApiService
+import comtest.ct.cd.bima.githubusers.domain.repository.remote.Result
+import comtest.ct.cd.bima.githubusers.domain.repository.remote.UserItem
+import comtest.ct.cd.bima.githubusers.domain.repository.remote.source.ApiService
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer

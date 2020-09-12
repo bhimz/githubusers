@@ -1,8 +1,8 @@
-package comtest.ct.cd.bima.githubusers.common.usecase
+package comtest.ct.cd.bima.githubusers.domain.usecase
 
-import comtest.ct.cd.bima.githubusers.common.SortType
-import comtest.ct.cd.bima.githubusers.common.User
-import comtest.ct.cd.bima.githubusers.common.repository.UserRepository
+import comtest.ct.cd.bima.githubusers.domain.SortType
+import comtest.ct.cd.bima.githubusers.domain.User
+import comtest.ct.cd.bima.githubusers.domain.repository.UserRepository
 
 class SearchUsers(
     private val userRepository: UserRepository

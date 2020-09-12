@@ -1,4 +1,4 @@
-package comtest.ct.cd.bima.githubusers.common.usecase
+package comtest.ct.cd.bima.githubusers.domain.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

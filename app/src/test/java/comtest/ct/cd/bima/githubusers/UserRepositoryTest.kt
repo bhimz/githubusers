@@ -1,12 +1,12 @@
 package comtest.ct.cd.bima.githubusers
 
-import comtest.ct.cd.bima.githubusers.common.SortType
-import comtest.ct.cd.bima.githubusers.common.User
-import comtest.ct.cd.bima.githubusers.common.repository.UserRepository
-import comtest.ct.cd.bima.githubusers.common.repository.remote.RestUserRepository
-import comtest.ct.cd.bima.githubusers.common.repository.remote.Result
-import comtest.ct.cd.bima.githubusers.common.repository.remote.UserItem
-import comtest.ct.cd.bima.githubusers.common.repository.remote.source.ApiService
+import comtest.ct.cd.bima.githubusers.domain.SortType
+import comtest.ct.cd.bima.githubusers.domain.User
+import comtest.ct.cd.bima.githubusers.domain.repository.UserRepository
+import comtest.ct.cd.bima.githubusers.domain.repository.remote.RestUserRepository
+import comtest.ct.cd.bima.githubusers.domain.repository.remote.Result
+import comtest.ct.cd.bima.githubusers.domain.repository.remote.UserItem
+import comtest.ct.cd.bima.githubusers.domain.repository.remote.source.ApiService
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
