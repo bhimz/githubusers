@@ -3,8 +3,9 @@ package comtest.ct.cd.bima.githubusers
 import android.os.Bundle
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.observe
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import comtest.ct.cd.bima.githubusers.domain.SortType
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -30,7 +31,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
         job = Job()
 
         with(resultListView) {
-            layoutManager = LinearLayoutManager(this@MainActivity)
+            layoutManager = GridLayoutManager(this@MainActivity, 2)
             adapter = resultAdapter
         }
 
@@ -41,10 +42,27 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
                 viewModel.updateSearch(it ?: "", SortType.ASC)
             }
         }
+        searchView.setOnCloseListener {
+            viewModel.clearResults()
+            true
+        }
 
         viewModel.users.observe(this) {
             it ?: return@observe
             resultAdapter.result = it
+        }
+
+        viewModel.uiState.observe(this) {
+            when (it) {
+                is UserListState.LOADING -> {
+                    loadingView.isVisible = true
+                    resultListView.isVisible = false
+                }
+                is UserListState.READY, is UserListState.ERROR -> {
+                    loadingView.isVisible = false
+                    resultListView.isVisible = true
+                }
+            }
         }
     }
 

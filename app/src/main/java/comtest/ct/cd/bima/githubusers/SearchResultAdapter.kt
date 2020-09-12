@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import comtest.ct.cd.bima.githubusers.domain.User
 import kotlinx.android.synthetic.main.view_user_item.view.*
 
@@ -31,6 +32,9 @@ class SearchResultViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     fun bind(user: User) {
         with(itemView) {
             usernameText.text = user.name
+            user.avatarUrl?.let {
+                Glide.with(this).load(it).into(imgAvatar)
+            }
         }
     }
 }

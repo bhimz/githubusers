@@ -30,15 +30,20 @@ class UserListViewModel(
         if (page > 1) {
             target.value = users.value
         }
-        viewModelScope.launch {
-            searchUsers.invoke(SearchUsers.Params(query, page, sortType = order))
-                .catch {
-                    uiState.value = UserListState.ERROR(it)
-                }
-                .collect {
-                    target.value = it
-                    uiState.value = UserListState.READY
-                }
+        if (query.isEmpty()) {
+            target.value = listOf()
+            uiState.value = UserListState.READY
+        } else {
+            viewModelScope.launch {
+                searchUsers.invoke(SearchUsers.Params(query, page, sortType = order))
+                    .catch {
+                        uiState.value = UserListState.ERROR(it)
+                    }
+                    .collect {
+                        target.value = it
+                        uiState.value = UserListState.READY
+                    }
+            }
         }
         return target
     }
@@ -51,6 +56,12 @@ class UserListViewModel(
             uiState.value = UserListState.LOADING
             searchParams.value = Triple(query, page, order)
         }
+    }
+
+    fun clearResults() = viewModelScope.launch {
+        query = ""
+        page = 1
+        search(query, page, order)
     }
 
     fun nextPage() = viewModelScope.launch {
