@@ -8,6 +8,7 @@ import comtest.ct.cd.bima.githubusers.domain.usecase.SearchUsers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 class UserListViewModel(
     private val appSettings: AppSettings,
@@ -17,7 +18,10 @@ class UserListViewModel(
 
     private var query = ""
     private var page = 0
-    private var order = SortType.ASC
+    private var order = SortType.DESC
+
+    val sortType: SortType
+        get() = order
 
     private val searchParams = MutableLiveData<Triple<String, Int, SortType>>()
 
@@ -46,7 +50,7 @@ class UserListViewModel(
                 )
             )
                 .catch {
-                    uiState.value = UserListState.Error(it)
+                    uiState.value = UserListState.Error(ErrorConsumable(it))
                 }
                 .collect {
                     userList += it
@@ -80,11 +84,25 @@ class UserListViewModel(
         searchParams.value = Triple(query, page, order)
     }
 
+    fun sortBy(sortType: SortType) {
+        updateSearch(query, sortType)
+    }
+
 }
 
 sealed class UserListState {
     object Loading : UserListState()
     object LoadNext : UserListState()
     object Ready : UserListState()
-    class Error(val error: Throwable) : UserListState()
+    class Error(val error: ErrorConsumable) : UserListState()
+}
+
+class ErrorConsumable(private val error: Throwable) {
+    private var consumed = AtomicBoolean(false)
+
+    fun consumeOnce(block: (Throwable) -> Unit) {
+        if (consumed.compareAndSet(false, true)) {
+            block(error)
+        }
+    }
 }

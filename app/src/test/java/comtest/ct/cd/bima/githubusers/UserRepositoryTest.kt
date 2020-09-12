@@ -30,6 +30,7 @@ class UserRepositoryTest {
         val query = "user"
         val page = 1
         val rowCount = 10
+        val sortBy = "followers"
         val order = SortType.ASC
 
         val response = Result(
@@ -47,6 +48,7 @@ class UserRepositoryTest {
                 query,
                 page,
                 rowCount,
+                sortBy,
                 order.value
             )
         ).thenReturn(response)
@@ -56,6 +58,7 @@ class UserRepositoryTest {
                 query,
                 page,
                 rowCount,
+                sortBy,
                 order
             )
             assertEquals(expected, result)

@@ -12,6 +12,7 @@ class RestUserRepository(
         query: String,
         pageNumber: Int,
         rowCount: Int,
+        sortBy: String,
         sorted: SortType
     ): List<User> =
         runCatching {
@@ -19,6 +20,7 @@ class RestUserRepository(
                 query,
                 pageNumber,
                 rowCount,
+                sortBy,
                 sorted.value
             ).items?.map { it.asUser() }
                 ?: listOf()

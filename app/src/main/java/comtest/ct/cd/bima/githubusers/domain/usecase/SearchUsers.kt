@@ -9,7 +9,13 @@ class SearchUsers(
 ) : BaseUseCase<SearchUsers.Params, List<User>>() {
     override suspend fun execute(param: Params?): List<User> {
         param ?: throw NoSuchElementException("param")
-        return userRepository.find(param.query, param.pageNumber, param.rowCount, param.sortType)
+        return userRepository.find(
+            param.query,
+            param.pageNumber,
+            param.rowCount,
+            "followers",
+            param.sortType
+        )
     }
 
     class Params(

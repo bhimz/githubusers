@@ -1,7 +1,10 @@
 package comtest.ct.cd.bima.githubusers
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.SearchView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.observe
@@ -35,6 +38,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
         super.onCreate(savedInstanceState)
 
         job = Job()
+        pageTitleText.text = getString(R.string.github_users)
+        pageSubTitleText.text = getString(R.string.ctcd)
+
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         val manager = GridLayoutManager(this, 2).apply {
             spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
@@ -95,9 +103,43 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
                     resultListView.isVisible = true
                     resultAdapter.isLoadingNext = false
                     isLoadingMore = false
+                    if (it is UserListState.Error) {
+                        it.error.consumeOnce { e ->
+                            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.app_menu, menu)
+        val sortAsc = menu?.findItem(R.id.actionSortAsc)
+        val sortDesc = menu?.findItem(R.id.actionSortDesc)
+        if (viewModel.sortType == SortType.ASC) {
+            sortAsc?.isChecked = true
+        } else {
+            sortDesc?.isChecked = true
+        }
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.isChecked) return super.onOptionsItemSelected(item)
+        item.isChecked = true
+        when (item.itemId) {
+            R.id.actionSortAsc -> {
+                viewModel.sortBy(SortType.ASC)
+                return true
+            }
+            R.id.actionSortDesc -> {
+                viewModel.sortBy(SortType.DESC)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun SearchView.setOnQueryTextListener(block: (String?) -> Unit) {
@@ -110,5 +152,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
             override fun onQueryTextSubmit(query: String?): Boolean = false
         }
         setOnQueryTextListener(listener)
+    }
+
+    override fun onDestroy() {
+        job.cancel()
+        super.onDestroy()
     }
 }

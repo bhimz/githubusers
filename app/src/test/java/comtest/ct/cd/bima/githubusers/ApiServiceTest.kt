@@ -102,7 +102,7 @@ class ApiServiceTest {
         )
 
         runBlocking {
-            val result = apiService.findUsers("bh", 1, 10, "asc")
+            val result = apiService.findUsers("bh", 1, 10, "followers", "asc")
             assertEquals(expected, result)
         }
 

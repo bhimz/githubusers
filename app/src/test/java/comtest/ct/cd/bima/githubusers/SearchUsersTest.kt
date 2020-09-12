@@ -1,5 +1,9 @@
 package comtest.ct.cd.bima.githubusers
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import comtest.ct.cd.bima.githubusers.domain.SortType
 import comtest.ct.cd.bima.githubusers.domain.User
 import comtest.ct.cd.bima.githubusers.domain.repository.UserRepository
@@ -9,8 +13,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
 
 class SearchUsersTest {
     private lateinit var userRepository: UserRepository
@@ -18,7 +20,7 @@ class SearchUsersTest {
 
     @Before
     fun setUp() {
-        userRepository = mock(UserRepository::class.java)
+        userRepository = mock()
         useCase = SearchUsers(userRepository)
     }
 
@@ -34,7 +36,15 @@ class SearchUsersTest {
             User("bHimes", "https://avatars3.githubusercontent.com/u/3077528?v=4")
         )
 
-        `when`(userRepository.find(query, page, rowCount, order)).thenReturn(expected)
+        whenever(
+            userRepository.find(
+                eq(query),
+                eq(page),
+                eq(rowCount),
+                any(),
+                eq(order)
+            )
+        ).thenReturn(expected)
 
         useCase.invoke(SearchUsers.Params(query, page)).collect {
             Assert.assertEquals(expected, it)
@@ -53,7 +63,15 @@ class SearchUsersTest {
             User("bHimes", "https://avatars3.githubusercontent.com/u/3077528?v=4")
         )
 
-        `when`(userRepository.find(query, page, rowCount, order)).thenReturn(expected)
+        whenever(
+            userRepository.find(
+                eq(query),
+                eq(page),
+                eq(rowCount),
+                any(),
+                eq(order)
+            )
+        ).thenReturn(expected)
 
         useCase.invoke(SearchUsers.Params(query, page, rowCount, order)).collect {
             Assert.assertEquals(expected, it)

@@ -11,6 +11,7 @@ interface ApiService {
         @Query("q") query: String,
         @Query("page") page: Int,
         @Query("per_page") perPage: Int,
+        @Query("sort") sortBy: String,
         @Query("order") order: String
     ): Result<UserItem>
 }
